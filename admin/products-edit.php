@@ -30,7 +30,7 @@
 
                         <div class="col-md-12 mb-3">
                             <label>Select Category</label>
-                            <select name="category_id" class="form-select">
+                            <select name="category_id" class="form-select" required>
                                 <option value="">Select Category</option>
                                 <?php
                                 $categories = getAll('categories');

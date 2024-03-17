@@ -33,7 +33,7 @@ if ($category['status'] == 200)
                         <div class="col-md-12 mb-3">
                             <label for="">Description</label>
 
-                            <textarea name="description" class="form-control" rows="3"<?= $category['data']['description'] ?>></textarea>
+                            <textarea name="description" class="form-control" rows="3"><?= $category['data']['description'] ?></textarea>
                         </div>
 
                         <div class="col-md-6">
