@@ -92,6 +92,7 @@ $(document).ready(function () {
           }).then((value) => {
             switch (value) {
               case "Catch":
+                $("#c_phone").val(cphone);
                 $("#addCustomerModal").modal("show");
                 // console.log("Pop the customer add modal");
                 break;
@@ -108,6 +109,80 @@ $(document).ready(function () {
           "An error occurred while processing your request",
           "error"
         );
+      },
+    });
+  });
+
+  // Add customer to customers table
+
+  $(document).on("click", ".saveCustomer", function () {
+    var c_name = $("#c_name").val();
+    var c_phone = $("#c_phone").val();
+    var c_email = $("#c_email").val();
+
+    if (c_name != "" && c_phone != "") {
+      if ($.isNumeric(c_phone)) {
+        var data = {
+          saveCustomerBtn: true,
+          name: c_name,
+          phone: c_phone,
+          email: c_email,
+        };
+
+        $.ajax({
+          type: "POST",
+          url: "orders-code.php",
+          data: data,
+
+          success: function (response) {
+            try {
+              var res = JSON.parse(response);
+
+              if (res.status == 200) {
+                swal(res.message, res.message, res.status_type);
+                $("#addCustomerModal").modal("hide");
+              } else if (res.status == 422) {
+                swal(res.message, res.message, res.status_type);
+              } else {
+                swal(res.message, res.message, res.status_type);
+              }
+            } catch (error) {
+              swal("Error", "Invalid response from server", "error");
+            }
+          },
+          error: function () {
+            swal(
+              "Error",
+              "An error occurred while processing your request",
+              "error"
+            );
+          },
+        });
+      } else {
+        swal("Enter valid phone number", "", "warning");
+      }
+    } else {
+      swal("Please fill required fields", "", "warning");
+    }
+  });
+
+  $(document).on("click", "#saveOrder", function () {
+    $.ajax({
+      type: "POST",
+      url: "orders-code.php",
+      data: {
+        saveOrder: true,
+      },
+
+      success: function (response) {
+        var res = JSON.parse(response);
+        if (res.status == 200) {
+          swal(res.message, res.message, res.status_type);
+          $("#orderPlaceSuccessMessage").text(res.message);
+          $("#orderSuccessModal").modal("show");
+        } else {
+          swal(res.message, res.message, res.status_type);
+        }
       },
     });
   });

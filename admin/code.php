@@ -126,15 +126,20 @@ if (isset($_POST['updateCategory'])) {
 }
 
 // Save Product
-
 if (isset($_POST['saveProduct'])) {
     $category_id = validate($_POST['category_id']);
     $name = validate($_POST['name']);
     $description = validate($_POST['description']);
-
     $price = validate($_POST['price']);
     $quantity = validate($_POST['quantity']);
-    $status = isset($_POST['status']) == true ? 1 : 0;
+    $status = isset($_POST['status']) ? 1 : 0;
+
+    // Verifica se il nome del prodotto è già presente nel database
+    $existingProduct = getById('products', 'name', $name);
+
+    if ($existingProduct) {
+        redirect('products-create.php', 'Product with the same name already exists!');
+    }
 
     if ($_FILES['image']['size'] > 0) {
         $path = '../assets/uploads/products';
@@ -181,7 +186,7 @@ if (isset($_POST['updateProduct'])) {
 
     $price = validate($_POST['price']);
     $quantity = validate($_POST['quantity']);
-    $status = isset($_POST['status']) == true ? 1 : 0;
+    $status = isset($_POST['status']) ? 1 : 0;
 
     if ($_FILES['image']['size'] > 0) {
         $path = '../assets/uploads/products';

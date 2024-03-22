@@ -53,6 +53,11 @@ function insert($tableName, $data)
 
     $table = validate($tableName);
 
+    // Converti il prezzo nel formato corretto (con il punto per i decimali)
+    if (isset($data['price'])) {
+        $data['price'] = str_replace(',', '.', $data['price']);
+    }
+
     $columns = array_keys($data);
     $values = array_values($data);
 
@@ -71,6 +76,10 @@ function update($tableName, $id, $data)
     global $conn;
 
     $table = validate($tableName);
+    if (isset($data['price'])) {
+        $data['price'] = str_replace(',', '.', $data['price']);
+    }
+
     $id = validate($id);
 
     $updateDataString = '';
@@ -113,6 +122,41 @@ function getById($tableName, $id)
     $id = validate($id);
 
     $query = "SELECT * FROM $table WHERE id='$id' LIMIT 1";
+    $result = mysqli_query($conn, $query);
+
+    if (!$result) {
+        $response = [
+            'status' => 500,
+            'message' => 'Query failed: ' . mysqli_error($conn),
+        ];
+        return $response;
+    }
+
+    if (mysqli_num_rows($result) == 1) {
+        $row = mysqli_fetch_assoc($result);
+        $response = [
+            'status' => 200,
+            'data' => $row,
+            'message' => 'Record Found',
+        ];
+    } else {
+        $response = [
+            'status' => 404,
+            'message' => 'No Data Found',
+        ];
+    }
+
+    return $response;
+}
+
+function getByPhone($tableName, $phone)
+{
+    global $conn;
+
+    $table = validate($tableName);
+    $phone = validate($phone);
+
+    $query = "SELECT * FROM $table WHERE phone='$phone' LIMIT 1";
     $result = mysqli_query($conn, $query);
 
     if (!$result) {
