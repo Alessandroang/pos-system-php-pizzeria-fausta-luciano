@@ -39,10 +39,6 @@ if (isset($_SESSION['loggedIn'])) {
                         </form>
                     </div>
                 </div>
-
-                <div class="text-center mt-3">
-                    <a href="register.php">Non hai un account? Registrati qui</a>
-                </div>
             </div>
         </div>
     </div>
