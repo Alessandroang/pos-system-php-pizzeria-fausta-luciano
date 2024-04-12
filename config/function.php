@@ -247,4 +247,43 @@ function getCount($tableName)
     }
 }
 
+function checkProductExistsByName($tableName, $productName)
+{
+    global $conn;
+
+    $table = validate($tableName);
+    $name = validate($productName);
+
+    $escapedName = mysqli_real_escape_string($conn, $name);
+
+    $query = "SELECT * FROM $table WHERE name = '$escapedName' LIMIT 1";
+    $result = mysqli_query($conn, $query);
+
+    if (!$result) {
+        $response = [
+            'status' => 500,
+            'message' => 'Query failed: ' . mysqli_error($conn),
+        ];
+        return $response;
+    }
+
+    if (mysqli_num_rows($result) > 0) {
+        // Prodotto con lo stesso nome esiste già
+        $row = mysqli_fetch_assoc($result);
+        $response = [
+            'status' => 200,
+            'data' => $row,
+            'message' => 'Product with the same name already exists!',
+        ];
+    } else {
+        // Prodotto non esiste ancora
+        $response = [
+            'status' => 404,
+            'message' => 'Product with this name does not exist.',
+        ];
+    }
+
+    return $response;
+}
+
 ?>

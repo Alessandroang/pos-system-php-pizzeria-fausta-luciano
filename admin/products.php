@@ -45,10 +45,11 @@
                                 </td>
 
                                 <td>
-                                    <span class="badge <?= $item['status'] == 1 ? 'bg-primary' : 'bg-danger' ?>">
-                                        <?= $item['status'] == 1 ? 'Visible' : 'Hidden' ?>
+                                    <span class="badge <?= $item['status'] == 1 ? 'bg-danger' : 'bg-primary' ?>">
+                                        <?= $item['status'] == 1 ? 'Hidden' : 'Visible' ?>
                                     </span>
                                 </td>
+
                                 <td>
                                     <a href="products-edit.php?id=<?= $item['id'] ?>"
                                         class="btn btn-success btn-sm">Edit</a>

@@ -43,8 +43,8 @@
                                     <?= $adminItem['email'] ?>
                                 </td>
                                 <td>
-                                    <span class="badge <?= $adminItem['is_ban'] == 1 ? 'bg-primary' : 'bg-danger' ?>">
-                                        <?= $adminItem['is_ban'] == 1 ? 'Active' : 'Not Active' ?>
+                                    <span class="badge <?= $adminItem['is_ban'] == 1 ? 'bg-danger' : 'bg-primary' ?>">
+                                        <?= $adminItem['is_ban'] == 1 ? 'Not Active' : 'Active' ?>
                                     </span>
                                 </td>
                                 <td>

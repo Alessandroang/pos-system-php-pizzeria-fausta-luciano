@@ -134,13 +134,6 @@ if (isset($_POST['saveProduct'])) {
     $quantity = validate($_POST['quantity']);
     $status = isset($_POST['status']) ? 1 : 0;
 
-    // Verifica se il nome del prodotto è già presente nel database
-    $existingProduct = getById('products', 'name', $name);
-
-    if ($existingProduct) {
-        redirect('products-create.php', 'Product with the same name already exists!');
-    }
-
     if ($_FILES['image']['size'] > 0) {
         $path = '../assets/uploads/products';
         $image_ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
@@ -152,21 +145,31 @@ if (isset($_POST['saveProduct'])) {
         $finalImage = '';
     }
 
-    $data = [
-        'category_id' => $category_id,
-        'name' => $name,
-        'description' => $description,
-        'price' => $price,
-        'quantity' => $quantity,
-        'image' => $finalImage,
-        'status' => $status,
-    ];
-    $result = insert('products', $data);
+    // Utilizza la tua funzione checkProductExistsByName per verificare se il prodotto esiste già per nome
+    $productExists = checkProductExistsByName('products', $name);
 
-    if ($result) {
-        redirect('products.php', 'Product created Successfully!');
+    if ($productExists['status'] === 200) {
+        // Prodotto con lo stesso nome esiste già
+        redirect('products-create.php', 'Product with the same name already exists!');
     } else {
-        redirect('products-create.php', 'Something Went Wrong!');
+        // Prodotto non esiste ancora, procedi con l'inserimento
+        $data = [
+            'category_id' => $category_id,
+            'name' => $name,
+            'description' => $description,
+            'price' => $price,
+            'quantity' => $quantity,
+            'image' => $finalImage,
+            'status' => $status,
+        ];
+
+        $result = insert('products', $data);
+
+        if ($result) {
+            redirect('products.php', 'Product created Successfully!');
+        } else {
+            redirect('products-create.php', 'Something Went Wrong!');
+        }
     }
 }
 
