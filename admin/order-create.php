@@ -1,172 +1,118 @@
 <?php include 'includes/header.php'; ?>
 
-<div class="modal fade" id="addCustomerModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Add customer</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label>Enter customer name</label>
-                    <input type="text" id="c_name" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label>Enter customer phone number</label>
-                    <input type="text" id="c_phone" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label>Enter customer Email (optional)</label>
-                    <input type="text" id="c_email" class="form-control">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary saveCustomer">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="container-fluid px-4">
     <div class="card mt-4 shadow-sm">
         <div class="card-header">
             <h4 class="mb-0">Create Order
                 <a href="#" class="btn btn-danger float-end">Back</a>
             </h4>
-            <div class="card-body">
-                <?php alertMessage(); ?>
-                <form action="orders-code.php" method="POST">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <label for="">Select Product</label>
-                            <select name="product_id" class="form-select mySelect2">
-                                <option value="">-- Select Product --</option>
-                                <?php
-                                $products = getAll('products');
-                                if ($products) {
-                                    if (mysqli_num_rows($products) > 0) {
-                                        foreach ($products as $prodItem) {
-                                          ?>
+        </div>
+        <div class="card-body">
+            <?php alertMessage(); ?>
 
-                                <option value="<?= $prodItem['id'] ?>"><?= $prodItem['name'] ?></option>
-                                <?php  
-                                        }
-                                    }else{
-                                    echo '<option value="">No product found</option>';
-
-                                    }
-                                } else {
-                                    echo '<option value="">Something went wrong</option>';
-                                }
-                                
-                                ?>
-
-
-                            </select>
-                        </div>
-                        <div class="col-md-2 mb-3">
-                            <label for="">Quantity</label>
-                            <input type="number" name="quantity" value="1" class="form-control" />
-                        </div>
-
-
-
-                        <div class="col-md-3 mb-3 text-end">
-                            <br />
-                            <button type="submit" name="addItem" class="btn btn-primary">Add Item</button>
+            <div class="row row-cols-3 g-4">
+                <?php
+                $products = getAll('products');
+                if ($products && mysqli_num_rows($products) > 0) {
+                    while ($prodItem = mysqli_fetch_assoc($products)) {
+                ?>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <img src="../<?= $prodItem['image'] ?>" class="card-img-top me-3"
+                                    alt="<?= $prodItem['name'] ?>" style="width: 80px; height: 80px;">
+                                <div>
+                                    <h5 class="card-title"><?= $prodItem['name'] ?></h5>
+                                    <p class="card-text">Price: <?= $prodItem['price'] ?></p>
+                                    <form action="orders-code.php" method="POST">
+                                        <input type="hidden" name="product_id" value="<?= $prodItem['id'] ?>">
+                                        <input type="hidden" name="product_name" value="<?= $prodItem['name'] ?>">
+                                        <input type="hidden" name="product_price" value="<?= $prodItem['price'] ?>">
+                                        <input type="number" name="quantity" value="1" class="form-control"
+                                            style="width: 60px; display: inline-block;">
+                                        <button type="submit" name="addItem" class="btn btn-primary ms-2">Add
+                                            Item</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="card mt-3">
+                </div>
 
-        <div class="card-header">
-            <h4 class="mb-0">Products</h4>
-        </div>
-        <div class="card-body" id="productArea">
-            <?php
-            if (isset($_SESSION['productItems'])) {
-                $sessionProducts = $_SESSION['productItems'];
-                if(empty($sessionProducts)){
-    unset($_SESSION['productItemIds']);
-    unset($_SESSION['productItems']);
-}
 
+                <?php
+                    }
+                } else {
+                    echo '<p>No products found.</p>';
+                }
                 ?>
-            <div class="table-responsive mb-3" id="productContent">
+            </div>
+
+            <hr>
+
+            <h4>Order Items</h4>
+            <div class="table-responsive">
                 <table class="table table-bordered table-striped">
                     <thead>
-                        <th>Id</th>
-                        <th>Product Name</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total Price</th>
-                        <th>Remove</th>
-
+                        <tr>
+                            <th>Id</th>
+                            <th>Product Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total Price</th>
+                            <th>Actions</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        <?php 
+                        <?php
+                        $totalPrice = 0;
+                        if (isset($_SESSION['productItems']) && !empty($_SESSION['productItems'])) {
                             $i = 1;
-                            foreach($sessionProducts as $key => $item) : ?>
+                            foreach ($_SESSION['productItems'] as $key => $item) {
+                                $totalPrice += $item['price'] * $item['quantity'];
+                        ?>
                         <tr>
                             <td><?= $i++ ?></td>
                             <td><?= $item['name'] ?></td>
                             <td><?= $item['price'] ?></td>
                             <td>
-                                <div class="input-group qtyBox">
-                                    <input type="hidden" value="<?= $item['product_id'] ?>" class="prodId" />
-                                    <button class="input-group-text decrement">-</button>
-                                    <input type="text" value="<?= $item['quantity'] ?>" class="qty quantityInput" />
-                                    <button class="input-group-text increment">+</button>
-
-                                </div>
+                                <?= $item['quantity'] ?>
                             </td>
-                            <td>
-                                <?= number_format($item['price'] * $item['quantity'], 0) ?>
-                            </td>
+                            <td class="totalPrice"><?= number_format($item['price'] * $item['quantity'], 2) ?></td>
                             <td><a href="order-item-delete.php?index=<?= $key ?>" class="btn btn-danger">Remove</a></td>
                         </tr>
-                        <?php endforeach;?>
-
+                        <?php
+                            }
+                        } else {
+                            echo '<tr><td colspan="6">No items added</td></tr>';
+                        }
+                        ?>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                            <td id="orderTotal"><?= number_format($totalPrice, 2) ?></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
+
             <div class="mt-2">
                 <hr>
                 <div class="row">
-                    <div class="col-md-4">
-                        <label>Select Payment Mode</label>
-                        <select id="payment_mode" class="form-select">
-                            <option value="">-- Select Payment Mode</option>
-                            <option value="Cash Payment">Cash Payment</option>
-                            <option value="Online Payment">Online Payment</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label>Enter Customer Phone Number</label>
-                        <input type="number" id="cphone" class="form-control" value="" />
-                    </div>
-                    <div class="col-md-4">
+
+
+                    <div class="col-md-12">
                         <br />
                         <button class="btn btn-warning w-100 proceedToPlace">Proceed to place order</button>
                     </div>
                 </div>
             </div>
-
-            <?php
-            }
-            else{
-                echo '<h5>No items added</h5>';
-            }
-            ?>
         </div>
     </div>
 </div>
+
 
 
 <?php include 'includes/footer.php'; ?>
