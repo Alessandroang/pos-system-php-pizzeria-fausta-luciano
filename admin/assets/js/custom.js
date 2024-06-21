@@ -8,8 +8,7 @@ $(document).ready(function () {
 
     if (!isNaN(currentValue)) {
       var qtyVal = currentValue + 1;
-      $quantityInput.val(qtyVal);
-      quantityIncDec(productId, qtyVal);
+      checkAvailabilityAndUpdate(productId, qtyVal, $quantityInput);
     }
   });
 
@@ -20,25 +19,24 @@ $(document).ready(function () {
 
     if (!isNaN(currentValue) && currentValue > 1) {
       var qtyVal = currentValue - 1;
-      $quantityInput.val(qtyVal);
-      quantityIncDec(productId, qtyVal);
+      checkAvailabilityAndUpdate(productId, qtyVal, $quantityInput);
     }
   });
 
-  function quantityIncDec(prodId, qty) {
+  function checkAvailabilityAndUpdate(productId, qty, $quantityInput) {
     $.ajax({
       type: "POST",
       url: "orders-code.php",
       data: {
         productIncDec: true,
-        product_id: prodId,
+        product_id: productId,
         quantity: qty,
       },
-
       success: function (response) {
         var res = JSON.parse(response);
 
         if (res.status == 200) {
+          $quantityInput.val(qty);
           $("#productArea").load(" #productContent ");
           alertify.success(res.message);
         } else {
@@ -49,7 +47,8 @@ $(document).ready(function () {
     });
   }
 
-  // Proceed to place order button click
+  // Altre funzioni come proceedToPlace, saveCustomer, saveOrder...
+
   $(document).on("click", ".proceedToPlace", function () {
     var cphone = $("#cphone").val();
     var payment_mode = $("#payment_mode").val();
@@ -94,7 +93,6 @@ $(document).ready(function () {
               case "Catch":
                 $("#c_phone").val(cphone);
                 $("#addCustomerModal").modal("show");
-                // console.log("Pop the customer add modal");
                 break;
               default:
             }
@@ -112,8 +110,6 @@ $(document).ready(function () {
       },
     });
   });
-
-  // Add customer to customers table
 
   $(document).on("click", ".saveCustomer", function () {
     var c_name = $("#c_name").val();
@@ -133,7 +129,6 @@ $(document).ready(function () {
           type: "POST",
           url: "orders-code.php",
           data: data,
-
           success: function (response) {
             try {
               var res = JSON.parse(response);
@@ -173,7 +168,6 @@ $(document).ready(function () {
       data: {
         saveOrder: true,
       },
-
       success: function (response) {
         var res = JSON.parse(response);
         if (res.status == 200) {
@@ -187,6 +181,7 @@ $(document).ready(function () {
     });
   });
 });
+
 function printMyBillingArea() {
   var divContents = document.getElementById("myBillingArea").innerHTML;
   var a = window.open("", "");

@@ -1,6 +1,5 @@
 <?php include 'includes/header.php'; ?>
 
-
 <div class="container-fluid px-4">
     <div class="card mt-4 shadow-sm">
         <div class="card-header">
@@ -18,6 +17,7 @@
                                 <th>Image</th>
                                 <th>Name</th>
                                 <th>Status</th>
+                                <th>Quantity Available</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -37,24 +37,24 @@
                                     <?= $item['id'] ?>
                                 </td>
                                 <td>
-
                                     <img src="../<?= $item['image'] ?>" style="width: 50px;height:50px" alt="Img">
                                 </td>
                                 <td>
                                     <?= $item['name'] ?>
                                 </td>
-
                                 <td>
                                     <span class="badge <?= $item['status'] == 1 ? 'bg-danger' : 'bg-primary' ?>">
                                         <?= $item['status'] == 1 ? 'Hidden' : 'Visible' ?>
                                     </span>
                                 </td>
-
+                                <td>
+                                    <?= $item['quantity'] ?>
+                                </td>
                                 <td>
                                     <a href="products-edit.php?id=<?= $item['id'] ?>"
                                         class="btn btn-success btn-sm">Edit</a>
                                     <a href="products-delete.php?id=<?= $item['id'] ?>" class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Sei sicuro di voler eliminare questa immagine?')">
+                                        onclick="return confirm('Sei sicuro di voler eliminare questo prodotto?')">
                                         Delete
                                     </a>
                                 </td>
@@ -65,7 +65,7 @@
                             else{
                                 ?>
                             <tr>
-                                <td colspan="4">
+                                <td colspan="6">
                                     No record found
                                 </td>
                             </tr>
@@ -79,6 +79,5 @@
         </div>
     </div>
 </div>
-
 
 <?php include 'includes/footer.php'; ?>
