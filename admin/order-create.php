@@ -29,6 +29,7 @@
         </div>
     </div>
 </div>
+
 <div class="container-fluid px-4">
     <div class="card mt-4 shadow-sm">
         <div class="card-header">
@@ -53,11 +54,11 @@
                     </thead>
                     <tbody>
                         <?php
-                    $products = getAll('products');
-                    if ($products) {
-                        if (mysqli_num_rows($products) > 0) {
-                            foreach ($products as $prodItem) {
-                    ?>
+                        $products = getAll('products');
+                        if ($products) {
+                            if (mysqli_num_rows($products) > 0) {
+                                foreach ($products as $prodItem) {
+                        ?>
                         <tr>
                             <td><?= $prodItem['id'] ?></td>
                             <td><img src="../<?= $prodItem['image'] ?>" style="width: 50px;height:50px" alt="Img">
@@ -76,14 +77,14 @@
                             </td>
                         </tr>
                         <?php
+                                }
+                            } else {
+                                echo '<tr><td colspan="6">No products found</td></tr>';
                             }
                         } else {
-                            echo '<tr><td colspan="6">No products found</td></tr>';
+                            echo '<tr><td colspan="6">Something went wrong</td></tr>';
                         }
-                    } else {
-                        echo '<tr><td colspan="6">Something went wrong</td></tr>';
-                    }
-                    ?>
+                        ?>
                     </tbody>
                 </table>
             </div>
@@ -96,13 +97,13 @@
         </div>
         <div class="card-body" id="productArea">
             <?php
-        if (isset($_SESSION['productItems'])) {
-            $sessionProducts = $_SESSION['productItems'];
-            if(empty($sessionProducts)){
-                unset($_SESSION['productItemIds']);
-                unset($_SESSION['productItems']);
-            }
-            ?>
+            if (isset($_SESSION['productItems'])) {
+                $sessionProducts = $_SESSION['productItems'];
+                if(empty($sessionProducts)){
+                    unset($_SESSION['productItemIds']);
+                    unset($_SESSION['productItems']);
+                }
+                ?>
             <div class="table-responsive mb-3" id="productContent">
                 <table class="table table-bordered table-striped">
                     <thead>
@@ -118,8 +119,8 @@
                     </thead>
                     <tbody>
                         <?php 
-                        $i = 1;
-                        foreach($sessionProducts as $key => $item) : ?>
+                            $i = 1;
+                            foreach($sessionProducts as $key => $item) : ?>
                         <tr>
                             <td><?= $i++ ?></td>
                             <td><img src="../<?= $item['image'] ?>" style="width: 50px;height:50px" alt="Img"></td>
@@ -143,20 +144,32 @@
             <div class="mt-2">
                 <hr>
                 <div class="row">
-                    <div class="col-md-12">
-                        <form action="orders-code.php" method="POST">
-                            <button type="submit" name="saveOrder" class="btn btn-success w-100">Place Order</button>
-                        </form>
+                    <div class="col-md-4">
+                        <label>Select Payment Mode</label>
+                        <select id="payment_mode" class="form-select">
+                            <option value="">-- Select Payment Mode</option>
+                            <option value="Cash Payment">Cash Payment</option>
+                            <option value="Online Payment">Online Payment</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Enter Customer Phone Number</label>
+                        <input type="number" id="cphone" class="form-control" value="" />
+                    </div>
+                    <div class="col-md-4">
+                        <br />
+                        <button class="btn btn-warning w-100 proceedToPlace">Proceed to place order</button>
                     </div>
                 </div>
             </div>
             <?php
-        }
-        else{
-            echo '<h5>No items added</h5>';
-        }
-        ?>
+            }
+            else{
+                echo '<h5>No items added</h5>';
+            }
+            ?>
         </div>
     </div>
 </div>
+
 <?php include 'includes/footer.php'; ?>

@@ -19,7 +19,7 @@ if (isset($_POST['addItem'])) {
         if (mysqli_num_rows($checkProduct) > 0) {
             $row = mysqli_fetch_assoc($checkProduct);
             if ($row['quantity'] < $quantity) {
-                redirect('order-create.php', 'Only' . $row['quantity'] . 'quantity available');
+                redirect('order-create.php', 'Only ' . $row['quantity'] . ' quantity available');
             }
 
             $productData = [
@@ -50,7 +50,7 @@ if (isset($_POST['addItem'])) {
                     }
                 }
             }
-            redirect('order-create.php', 'Item Added' . $row['name']);
+            redirect('order-create.php', 'Item Added ' . $row['name']);
         } else {
             redirect('order-create.php', 'No such product found!');
         }
@@ -63,19 +63,25 @@ if (isset($_POST['productIncDec'])) {
     $productId = validate($_POST['product_id']);
     $quantity = validate($_POST['quantity']);
 
-    $flag = false;
-
-    foreach ($_SESSION['productItems'] as $key => $item) {
-        if ($item['product_id'] == $productId) {
-            $flag = true;
-            $_SESSION['productItems'][$key]['quantity'] = $quantity;
+    $checkProduct = mysqli_query($conn, "SELECT * FROM products WHERE id='$productId' LIMIT 1");
+    if ($checkProduct) {
+        if (mysqli_num_rows($checkProduct) > 0) {
+            $row = mysqli_fetch_assoc($checkProduct);
+            if ($row['quantity'] < $quantity) {
+                jsonResponse(400, 'error', 'Only ' . $row['quantity'] . ' quantity available');
+            } else {
+                foreach ($_SESSION['productItems'] as $key => $item) {
+                    if ($item['product_id'] == $productId) {
+                        $_SESSION['productItems'][$key]['quantity'] = $quantity;
+                    }
+                }
+                jsonResponse(200, 'success', 'Quantity Updated');
+            }
+        } else {
+            jsonResponse(500, 'error', 'Product not found. Please refresh');
         }
-    }
-
-    if ($flag) {
-        jsonResponse(200, 'success', 'Quantity Updated');
     } else {
-        jsonResponse(500, 'error', 'Something went wrong. Plese refresh');
+        jsonResponse(500, 'error', 'Something went wrong. Please refresh');
     }
 }
 
@@ -93,10 +99,10 @@ if (isset($_POST['proceedToPlaceBtn'])) {
             jsonResponse(200, 'success', 'Customer Found');
         } else {
             $_SESSION['cphone'] = $phone;
-            jsonResponse(404, 'warning', 'Something Went Wrong');
+            jsonResponse(404, 'warning', 'Customer not found');
         }
     } else {
-        jsonResponse(500, 'error', 'Something Went Wrong');
+        jsonResponse(500, 'error', 'Something went wrong');
     }
 }
 
@@ -113,12 +119,12 @@ if (isset($_POST['saveCustomerBtn'])) {
         ];
         $result = insert('customers', $data);
         if ($result) {
-            jsonResponse(200, 'success', 'Customer created succesfully');
+            jsonResponse(200, 'success', 'Customer created successfully');
         } else {
-            jsonResponse(500, 'error', 'Something Went Wrong');
+            jsonResponse(500, 'error', 'Something went wrong');
         }
     } else {
-        jsonResponse(422, 'error', 'Please fill reuired fields');
+        jsonResponse(422, 'error', 'Please fill required fields');
     }
 }
 
@@ -135,7 +141,7 @@ if (isset($_POST['saveOrder'])) {
 
     if (mysqli_num_rows($checkCustomer) > 0) {
         $customerData = mysqli_fetch_assoc($checkCustomer);
-        if (!isset($_SESSION['productItems'])) {
+        if (!isset($_SESSION['productItems']) || empty($_SESSION['productItems'])) {
             jsonResponse(404, 'warning', 'No items to place order!');
         }
 
@@ -180,7 +186,7 @@ if (isset($_POST['saveOrder'])) {
             $updateProductQty = update('products', $productId, $dataUpdate);
         }
 
-        unset($_SESSION['productItemsIds']);
+        unset($_SESSION['productItemIds']);
         unset($_SESSION['productItems']);
         unset($_SESSION['cphone']);
         unset($_SESSION['payment_mode']);
